@@ -1,0 +1,2 @@
+### Credit
+This repo is my review of basic data structures and algos to be implemented in Go. I'll be following along work produced for Node.js in [this repo](https://github.com/trekhleb/javascript-algorithms/blob/master/README.md)
