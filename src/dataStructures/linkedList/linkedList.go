@@ -1,10 +1,12 @@
 package linkedList
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Item struct {
-	value interface{}
-	next  *Item
+	Value interface{}
+	Next  *Item
 }
 
 type linkedList struct {
@@ -22,6 +24,8 @@ type LinkedList interface {
 	IsEmpty() bool
 	Head() *Item
 	Tail() *Item
+	Find(Value interface{}, callback func(interface{}) bool) *Item
+	Delete(val interface{}) *Item
 }
 
 func New() LinkedList {
@@ -30,21 +34,21 @@ func New() LinkedList {
 }
 
 func (l *linkedList) Append(val interface{}) {
-	newitem := Item{value: val}
+	newitem := Item{Value: val}
 
 	if l.head == nil {
 		l.head = &newitem
 		l.tail = &newitem
-		l.tail.next = nil
+		l.tail.Next = nil
 		return
 	}
 
-	l.tail.next = &newitem
+	l.tail.Next = &newitem
 	l.tail = &newitem
 }
 
 func (l *linkedList) Prepend(val interface{}) {
-	newitem := Item{value: val, next: l.head}
+	newitem := Item{Value: val, Next: l.head}
 
 	if l.tail == nil {
 		l.tail = &newitem
@@ -57,7 +61,7 @@ func (l *linkedList) DeleteHead() {
 	if l.head == nil {
 		return
 	}
-	l.head = l.head.next
+	l.head = l.head.Next
 }
 
 func (l *linkedList) DeleteTail() {
@@ -67,19 +71,48 @@ func (l *linkedList) DeleteTail() {
 	}
 
 	curr := l.head
-	for curr.next.next != nil {
-		curr = curr.next
+	for curr.Next.Next != nil {
+		curr = curr.Next
 	}
-	curr.next = nil
+	curr.Next = nil
 	l.tail = curr
+}
+
+func (l *linkedList) Delete(val interface{}) (deletedNode *Item) {
+	if l.head == nil {
+		return
+	}
+
+	for l.head != nil && l.head.Value == val {
+		deletedNode = l.head
+		l.head = l.head.Next
+	}
+
+	currentNode := l.head
+	if currentNode != nil {
+		for currentNode.Next != nil {
+			if currentNode.Value == val {
+				deletedNode = currentNode.Next
+				currentNode.Next = currentNode.Next.Next
+			} else {
+				currentNode = currentNode.Next
+			}
+		}
+	}
+
+	if l.tail.Value == val {
+		l.tail = currentNode
+	}
+
+	return
 }
 
 func (l *linkedList) ToString() string {
 	str := ""
 	curr := l.head
 	for curr != nil {
-		str += " " + fmt.Sprint(curr.value)
-		curr = curr.next
+		str += " " + fmt.Sprint(curr.Value)
+		curr = curr.Next
 	}
 	return str
 }
@@ -94,4 +127,23 @@ func (l *linkedList) Head() *Item {
 
 func (l *linkedList) Tail() *Item {
 	return l.tail
+}
+
+func (l *linkedList) Find(Value interface{}, callback func(interface{}) bool) *Item {
+	if l.head == nil {
+		return nil
+	}
+
+	currentNode := l.head
+	for currentNode != nil {
+		if callback != nil && callback(currentNode.Value) {
+			return currentNode
+		}
+
+		if Value != nil && currentNode.Value == Value {
+			return currentNode
+		}
+		currentNode = currentNode.Next
+	}
+	return nil
 }
